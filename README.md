@@ -9,11 +9,11 @@ El uso de tus suscripciones de Codex, Kiro y Cursor de un vistazo, en la termina
 │ ● Codex                                                           Plus │
 │                                                                        │
 │ 5-hour limit                                                       34% │
-│ ███████████████████████▊░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │
+│ ━━━━━━━━━━━━━━━━━━━━━━━╸────────────────────────────────────────────── │
 │ resets in 2h 14m                                                       │
 │                                                                        │
 │ Weekly limit                                                       61% │
-│ ██████████████████████████████████████████▊░░░░░░░░░░░░░░░░░░░░░░░░░░░ │
+│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸─────────────────────────── │
 │ resets in 3d 5h                                                        │
 │                                                                        │
 │ chatgpt.com API · just now                                             │
@@ -23,7 +23,7 @@ El uso de tus suscripciones de Codex, Kiro y Cursor de un vistazo, en la termina
 │ ● Kiro                                                        Kiro Pro │
 │                                                                        │
 │ Credits                                                          41.6% │
-│ █████████████████████████████▏░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │
+│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸──────────────────────────────────────── │
 │ 416.11 / 1,000 credits                                                 │
 │ resets in 27d                                                          │
 │                                                                        │
@@ -34,16 +34,16 @@ El uso de tus suscripciones de Codex, Kiro y Cursor de un vistazo, en la termina
 │ ● Cursor                                                           Pro │
 │                                                                        │
 │ Total usage                                                      72.4% │
-│ ██████████████████████████████████████████████████▋░░░░░░░░░░░░░░░░░░░ │
+│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸─────────────────── │
 │ resets in 12d                                                          │
 │ $14.48 spent                                                           │
 │                                                                        │
 │ Auto + Composer                                                  58.3% │
-│ ████████████████████████████████████████▊░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │
+│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸───────────────────────────── │
 │ resets in 12d                                                          │
 │                                                                        │
 │ API models                                                       91.2% │
-│ ███████████████████████████████████████████████████████████████▉░░░░░░ │
+│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸────── │
 │ resets in 12d                                                          │
 │                                                                        │
 │ Cursor IDE login · just now                                            │
@@ -56,7 +56,7 @@ El uso de tus suscripciones de Codex, Kiro y Cursor de un vistazo, en la termina
 
 - No necesita configuración: encuentra solo los logins de las apps oficiales (Codex CLI, kiro-cli, Kiro IDE, Cursor IDE y cursor-agent). En WSL también encuentra los de las apps de Windows.
 - Muestra en una pantalla las ventanas de 5 horas y semanal de Codex, los créditos de Kiro y el uso incluido de Cursor, con cuánto falta para que se reinicie cada límite.
-- Dashboard con auto-refresh, 9 temas, modo compacto, % usado o restante y layout que se adapta al ancho.
+- Dashboard con auto-refresh, 10 temas, modo compacto, % usado o restante y layout que se adapta al ancho.
 - Salidas para scripts: tabla, una línea para barras de estado, JSON y plantillas Go.
 - Configurable con un archivo TOML comentado, variables de entorno y flags.
 - Solo lectura: nunca renueva ni modifica tus credenciales.
@@ -113,24 +113,24 @@ Modo compacto (`c` o `--compact`):
 
 ╭────────────────────────────────────────────────────────────────────────╮
 │ ● Codex                                                           Plus │
-│ 5-hour limit    ██████████████▎░░░░░░░░░░░░░░░░░░░░░░░░░░░   34% 2h14m │
-│ Weekly limit    █████████████████████████▋░░░░░░░░░░░░░░░░   61%  3d5h │
+│ 5-hour limit    ━━━━━━━━━━━━━━╸───────────────────────────   34% 2h14m │
+│ Weekly limit    ━━━━━━━━━━━━━━━━━━━━━━━━━╸────────────────   61%  3d5h │
 │                                                                        │
 │ chatgpt.com API · just now                                             │
 ╰────────────────────────────────────────────────────────────────────────╯
 
 ╭────────────────────────────────────────────────────────────────────────╮
 │ ● Kiro                                                        Kiro Pro │
-│ Credits         █████████████████▌░░░░░░░░░░░░░░░░░░░░░░░░ 41.6%   27d │
+│ Credits         ━━━━━━━━━━━━━━━━━╸──────────────────────── 41.6%   27d │
 │                                                                        │
 │ kiro-cli login · just now                                              │
 ╰────────────────────────────────────────────────────────────────────────╯
 
 ╭────────────────────────────────────────────────────────────────────────╮
 │ ● Cursor                                                           Pro │
-│ Total usage     ██████████████████████████████▍░░░░░░░░░░░ 72.4%   12d │
-│ Auto + Composer ████████████████████████▌░░░░░░░░░░░░░░░░░ 58.3%   12d │
-│ API models      ██████████████████████████████████████▎░░░ 91.2%   12d │
+│ Total usage     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸─────────── 72.4%   12d │
+│ Auto + Composer ━━━━━━━━━━━━━━━━━━━━━━━━╸───────────────── 58.3%   12d │
+│ API models      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╸─── 91.2%   12d │
 │                                                                        │
 │ Cursor IDE login · just now                                            │
 ╰────────────────────────────────────────────────────────────────────────╯
@@ -236,7 +236,7 @@ meters = ["total"]   # solo el total; con enabled = false se oculta del todo
 | `order` | `["codex", "kiro", "cursor"]` | Orden de las tarjetas. |
 | `scan_windows` | `true` | En WSL, buscar también los logins de las apps de Windows. |
 | `windows_home` | `""` | Perfil de Windows a usar en vez de detectarlo (por ejemplo `/mnt/c/Users/ana`). |
-| `ui.theme` | `"auto"` | `auto`, `dark`, `light`, `dracula`, `nord`, `catppuccin`, `gruvbox`, `tokyonight`, `mono`. |
+| `ui.theme` | `"auto"` | `auto`, `dark`, `light`, `dracula`, `nord`, `catppuccin`, `gruvbox`, `tokyonight`, `material-ocean`, `mono`. |
 | `ui.layout` | `"auto"` | `auto` (las columnas que quepan), `columns` (una fila), `rows` (una columna). |
 | `ui.columns` | `0` | Número fijo de columnas (0 = automático). |
 | `ui.card_width` | `36` | Ancho mínimo de cada tarjeta en el layout automático. |

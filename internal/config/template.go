@@ -28,7 +28,7 @@ scan_windows = true
 windows_home = ""
 
 [ui]
-# auto | dark | light | dracula | nord | catppuccin | gruvbox | tokyonight | mono
+# auto | dark | light | dracula | nord | catppuccin | gruvbox | tokyonight | material-ocean | mono
 theme = "auto"
 # auto (fit as many columns as possible) | columns (one row) | rows (one column)
 layout = "auto"

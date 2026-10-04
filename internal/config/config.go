@@ -33,7 +33,7 @@ var AllProviders = []string{Codex, Kiro, Cursor}
 
 // Allowed values of enumerated settings.
 var (
-	Themes        = []string{"auto", "dark", "light", "dracula", "nord", "catppuccin", "gruvbox", "tokyonight", "mono"}
+	Themes        = []string{"auto", "dark", "light", "dracula", "nord", "catppuccin", "gruvbox", "tokyonight", "material-ocean", "mono"}
 	Layouts       = []string{"auto", "columns", "rows"}
 	BarStyles     = []string{"blocks", "line", "ascii", "dots"}
 	PercentModes  = []string{"used", "remaining"}

@@ -30,13 +30,14 @@ type Theme struct {
 type palette struct{ accent, text, muted, border, ok, warn, critical, barEmpty string }
 
 var palettes = map[string]palette{
-	"dark":       {"#A78BFA", "#E5E7EB", "#9CA3AF", "#4B5563", "#34D399", "#FBBF24", "#F87171", "#374151"},
-	"light":      {"#6D28D9", "#111827", "#6B7280", "#D1D5DB", "#059669", "#B45309", "#DC2626", "#E5E7EB"},
-	"dracula":    {"#BD93F9", "#F8F8F2", "#6272A4", "#44475A", "#50FA7B", "#F1FA8C", "#FF5555", "#44475A"},
-	"nord":       {"#88C0D0", "#ECEFF4", "#7B88A1", "#4C566A", "#A3BE8C", "#EBCB8B", "#BF616A", "#3B4252"},
-	"catppuccin": {"#CBA6F7", "#CDD6F4", "#9399B2", "#45475A", "#A6E3A1", "#F9E2AF", "#F38BA8", "#313244"},
-	"gruvbox":    {"#FE8019", "#EBDBB2", "#A89984", "#504945", "#B8BB26", "#FABD2F", "#FB4934", "#3C3836"},
-	"tokyonight": {"#7AA2F7", "#C0CAF5", "#737AA2", "#3B4261", "#9ECE6A", "#E0AF68", "#F7768E", "#292E42"},
+	"dark":           {"#A78BFA", "#E5E7EB", "#9CA3AF", "#4B5563", "#34D399", "#FBBF24", "#F87171", "#374151"},
+	"light":          {"#6D28D9", "#111827", "#6B7280", "#D1D5DB", "#059669", "#B45309", "#DC2626", "#E5E7EB"},
+	"dracula":        {"#BD93F9", "#F8F8F2", "#6272A4", "#44475A", "#50FA7B", "#F1FA8C", "#FF5555", "#44475A"},
+	"nord":           {"#88C0D0", "#ECEFF4", "#7B88A1", "#4C566A", "#A3BE8C", "#EBCB8B", "#BF616A", "#3B4252"},
+	"catppuccin":     {"#CBA6F7", "#CDD6F4", "#9399B2", "#45475A", "#A6E3A1", "#F9E2AF", "#F38BA8", "#313244"},
+	"gruvbox":        {"#FE8019", "#EBDBB2", "#A89984", "#504945", "#B8BB26", "#FABD2F", "#FB4934", "#3C3836"},
+	"tokyonight":     {"#7AA2F7", "#C0CAF5", "#737AA2", "#3B4261", "#9ECE6A", "#E0AF68", "#F7768E", "#292E42"},
+	"material-ocean": {"#84FFFF", "#8F93A2", "#717CB4", "#464B5D", "#C3E88D", "#FFCB6B", "#FF5370", "#292D3E"},
 }
 
 // SetColorMode configures color output globally: "auto" detects the

@@ -241,7 +241,7 @@ func newThemesCmd(o *options) *cobra.Command {
 			w := cmd.OutOrStdout()
 			for _, name := range config.Themes {
 				t := ui.NewTheme(name, cfg.UI.Colors)
-				label := lipgloss.NewStyle().Bold(true).Foreground(t.Accent).Render(fmt.Sprintf("%-11s", name))
+				label := lipgloss.NewStyle().Bold(true).Foreground(t.Accent).Render(fmt.Sprintf("%-14s", name))
 				bars := []string{
 					t.Bar(35, 10, cfg.UI.BarStyle, t.OK),
 					t.Bar(75, 10, cfg.UI.BarStyle, t.Warn),
