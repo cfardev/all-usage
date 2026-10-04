@@ -55,7 +55,12 @@ url=$(curl -fsSL -o /dev/null -w '%{url_effective}' "https://github.com/${repo}/
 	exit 1
 }
 tag=${url##*/}
+# Same rule as tagRE in internal/cli/update.go and the release workflow.
 case "$tag" in
+*[!A-Za-z0-9._+-]* | v[!0-9]* | v)
+	echo "all-usage: refusing release tag ${tag}" >&2
+	exit 1
+	;;
 v[0-9]*) ;;
 *)
 	echo "all-usage: could not find the latest release (${url})" >&2

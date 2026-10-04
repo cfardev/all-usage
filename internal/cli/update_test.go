@@ -8,13 +8,28 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
+	"time"
 )
+
+func TestMain(m *testing.M) {
+	if dir := os.Getenv("ALL_USAGE_HOLD"); dir != "" {
+		if err := os.WriteFile(filepath.Join(dir, "ready"), []byte("1"), 0o644); err != nil {
+			os.Exit(1)
+		}
+		time.Sleep(time.Minute)
+		os.Exit(0)
+	}
+	os.Exit(m.Run())
+}
 
 func TestAssetName(t *testing.T) {
 	cases := []struct{ os, arch, want string }{
@@ -227,6 +242,9 @@ func TestReplaceIgnoresPlantedSymlink(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := os.Symlink(secret, exe+".new"); err != nil {
+		if runtime.GOOS == "windows" {
+			t.Skip(err.Error())
+		}
 		t.Fatal(err)
 	}
 	if err := canWrite(exe); err != nil {
@@ -242,6 +260,83 @@ func TestReplaceIgnoresPlantedSymlink(t *testing.T) {
 	bin, err := os.ReadFile(exe)
 	if err != nil || string(bin) != "new" {
 		t.Fatalf("exe = %q, %v", bin, err)
+	}
+}
+
+func TestReplaceRunningExecutable(t *testing.T) {
+	src, err := os.Executable()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if resolved, err := filepath.EvalSymlinks(src); err == nil {
+		src = resolved
+	}
+	hold := t.TempDir()
+	dst := filepath.Join(hold, filepath.Base(src))
+	in, err := os.Open(src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer in.Close()
+	out, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY, 0o755)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := io.Copy(out, in); err != nil {
+		out.Close()
+		t.Fatal(err)
+	}
+	if err := out.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chmod(dst, 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	cmd := exec.Command(dst)
+	cmd.Env = append(os.Environ(), "ALL_USAGE_HOLD="+hold)
+	if err := cmd.Start(); err != nil {
+		t.Fatal(err)
+	}
+	done := make(chan struct{})
+	go func() {
+		_ = cmd.Wait()
+		close(done)
+	}()
+	t.Cleanup(func() {
+		_ = cmd.Process.Kill()
+		<-done
+	})
+
+	ready := filepath.Join(hold, "ready")
+	deadline := time.Now().Add(15 * time.Second)
+	for {
+		if _, err := os.Stat(ready); err == nil {
+			break
+		}
+		select {
+		case <-done:
+			t.Fatal("helper exited before it was ready")
+		default:
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("helper did not start")
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+
+	const next = "replaced-binary"
+	if err := replaceBinary(runtime.GOOS, dst, []byte(next)); err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(dst)
+	if err != nil || string(got) != next {
+		t.Fatalf("exe = %q, %v", got, err)
+	}
+	select {
+	case <-done:
+		t.Fatal("replace killed the running executable")
+	case <-time.After(300 * time.Millisecond):
 	}
 }
 
