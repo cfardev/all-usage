@@ -63,6 +63,20 @@ Codex, Kiro, and Cursor subscription usage at a glance, in the terminal.
 
 ## Install
 
+```sh
+curl -fsSL https://raw.githubusercontent.com/cfardev/all-usage/main/install.sh | bash
+```
+
+The script downloads the latest release binary for your OS and architecture, checks its sha256, and installs it to `~/.local/bin` (or `ALL_USAGE_INSTALL_DIR`). If that directory is not writable it uses `sudo` to install to `/usr/local/bin`.
+
+Update later with:
+
+```sh
+all-usage update
+```
+
+### From source
+
 Requires Go 1.24 or later.
 
 ```sh
@@ -90,6 +104,7 @@ all-usage -r 30s           # refresh every 30s (0 disables auto-refresh)
 all-usage --theme nord     # another theme (all-usage themes lists them)
 all-usage show             # print once and exit
 all-usage doctor           # what was detected, and how to fix problems
+all-usage update           # replace this binary with the latest release
 ```
 
 ### Dashboard
