@@ -14,7 +14,8 @@ import (
 
 func TestReadKV(t *testing.T) {
 	// Path characters that need escaping in SQLite URIs.
-	db := filepath.Join(t.TempDir(), "dir with spaces #1 ?x", "state.vscdb")
+	// "?" is reserved in Windows file names; TestSQLiteURI covers that encoding.
+	db := filepath.Join(t.TempDir(), "dir with spaces #1 %x", "state.vscdb")
 	testutil.KVDB(t, db, map[string]map[string]string{"ItemTable": {"a": "1", "b": `{"x":2}`}})
 	before, _ := os.Stat(db)
 

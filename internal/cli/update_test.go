@@ -117,8 +117,13 @@ func TestUpdateRelease(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if info.Mode().Perm() != 0o755 {
-		t.Fatalf("mode = %o", info.Mode().Perm())
+	// Windows only stores the read-only bit, so a successful chmod is 0666.
+	want := os.FileMode(0o755)
+	if runtime.GOOS == "windows" {
+		want = 0o666
+	}
+	if info.Mode().Perm() != want {
+		t.Fatalf("mode = %o, want %o", info.Mode().Perm(), want)
 	}
 }
 
@@ -306,6 +311,16 @@ func TestReplaceRunningExecutable(t *testing.T) {
 	t.Cleanup(func() {
 		_ = cmd.Process.Kill()
 		<-done
+		// Windows keeps the image locked briefly after the process exits.
+		// t.TempDir fails the test if that file is still there.
+		for range 50 {
+			errExe := os.Remove(dst)
+			errOld := os.Remove(dst + ".old")
+			if (errExe == nil || os.IsNotExist(errExe)) && (errOld == nil || os.IsNotExist(errOld)) {
+				return
+			}
+			time.Sleep(20 * time.Millisecond)
+		}
 	})
 
 	ready := filepath.Join(hold, "ready")
