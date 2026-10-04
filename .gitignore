@@ -1,24 +1,24 @@
-# Binarios (`go build .` genera ./all-usage en la raíz)
+# Binaries (`go build .` writes ./all-usage in the repo root)
 /all-usage
 /all-usage.exe
 /bin/
 /dist/
 
-# Artefactos de tests y profiling
+# Test and profiling artifacts
 *.test
 *.out
 *.prof
 coverage.*
 
-# Workspaces locales de Go
+# Local Go workspaces
 go.work
 go.work.sum
 
-# Variables de entorno locales (pueden contener tokens)
+# Local environment files (may contain tokens)
 .env
 .env.*
 
-# Editores y sistema operativo
+# Editors and operating system
 .idea/
 .vscode/
 *.swp
