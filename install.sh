@@ -36,12 +36,18 @@ asset="all-usage_${os}_${arch}.tar.gz"
 need_sudo=0
 if [ -n "${ALL_USAGE_INSTALL_DIR:-}" ]; then
 	dest=$ALL_USAGE_INSTALL_DIR
-	mkdir -p "$dest"
 elif [ -n "${HOME:-}" ] && mkdir -p "${HOME}/.local/bin" 2>/dev/null && [ -w "${HOME}/.local/bin" ]; then
 	dest="${HOME}/.local/bin"
 else
 	dest=/usr/local/bin
-	need_sudo=1
+fi
+# mkdir succeeding is not enough: /usr/local/bin exists and still needs sudo.
+if [ ! -d "$dest" ] || [ ! -w "$dest" ]; then
+	if mkdir -p "$dest" 2>/dev/null && [ -w "$dest" ]; then
+		need_sudo=0
+	else
+		need_sudo=1
+	fi
 fi
 
 url=$(curl -fsSL -o /dev/null -w '%{url_effective}' "https://github.com/${repo}/releases/latest") || {

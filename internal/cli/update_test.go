@@ -139,6 +139,25 @@ func TestUpdateAlreadyCurrent(t *testing.T) {
 	}
 }
 
+func TestUpdateRejectsNonReleaseTag(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte(`{"tag_name":"vtest"}`))
+	}))
+	defer srv.Close()
+
+	err := updateRelease(context.Background(), srv.Client(), updateOpts{
+		API:          srv.URL + "/api/latest",
+		DownloadBase: srv.URL + "/dl",
+		Version:      "dev",
+		GOOS:         "linux",
+		GOARCH:       "amd64",
+		Exe:          filepath.Join(t.TempDir(), "all-usage"),
+	})
+	if err == nil || !strings.Contains(err.Error(), "unexpected release tag") {
+		t.Fatalf("err = %v", err)
+	}
+}
+
 func TestUpdateNoRelease(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
@@ -194,6 +213,35 @@ func TestUpdateChecksumMismatch(t *testing.T) {
 	got, _ := os.ReadFile(exe)
 	if string(got) != "old-binary" {
 		t.Fatalf("binary was replaced: %q", got)
+	}
+}
+
+func TestReplaceIgnoresPlantedSymlink(t *testing.T) {
+	dir := t.TempDir()
+	exe := filepath.Join(dir, "all-usage")
+	secret := filepath.Join(dir, "secret")
+	if err := os.WriteFile(exe, []byte("old"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(secret, []byte("keep"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(secret, exe+".new"); err != nil {
+		t.Fatal(err)
+	}
+	if err := canWrite(exe); err != nil {
+		t.Fatal(err)
+	}
+	if err := replaceBinary("linux", exe, []byte("new")); err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(secret)
+	if err != nil || string(got) != "keep" {
+		t.Fatalf("secret = %q, %v", got, err)
+	}
+	bin, err := os.ReadFile(exe)
+	if err != nil || string(bin) != "new" {
+		t.Fatalf("exe = %q, %v", bin, err)
 	}
 }
 

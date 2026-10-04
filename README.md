@@ -67,7 +67,7 @@ Codex, Kiro, and Cursor subscription usage at a glance, in the terminal.
 curl -fsSL https://raw.githubusercontent.com/cfardev/all-usage/main/install.sh | bash
 ```
 
-The script downloads the latest release binary for your OS and architecture, checks its sha256, and installs it to `~/.local/bin` (or `ALL_USAGE_INSTALL_DIR`). If that directory is not writable it uses `sudo` to install to `/usr/local/bin`.
+The script downloads the latest release binary for your OS and architecture, checks its sha256, and installs it to `~/.local/bin` (or `ALL_USAGE_INSTALL_DIR`). If that directory is not writable, it installs there with `sudo`. When `~/.local/bin` cannot be created, the destination is `/usr/local/bin`.
 
 Update later with:
 

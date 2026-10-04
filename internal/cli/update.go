@@ -33,7 +33,8 @@ const (
 
 var (
 	releaseHTTP = &http.Client{Timeout: 5 * time.Minute}
-	tagRE       = regexp.MustCompile(`^[A-Za-z0-9._+-]+$`)
+	// Same rule as install.sh and the release workflow: v1, v1.2.3, v1.2.3-rc.1.
+	tagRE = regexp.MustCompile(`^v[0-9][A-Za-z0-9._+-]*$`)
 )
 
 // assetName is the release archive for an OS and architecture.
@@ -310,24 +311,35 @@ func readLimited(r io.Reader, limit int64, name string) ([]byte, error) {
 }
 
 func canWrite(exe string) error {
-	tmp := exe + ".new"
-	f, err := os.OpenFile(tmp, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
+	f, err := os.CreateTemp(filepath.Dir(exe), ".all-usage-*.new")
 	if err != nil {
 		return err
 	}
+	name := f.Name()
 	if err := f.Close(); err != nil {
-		os.Remove(tmp)
+		os.Remove(name)
 		return err
 	}
-	return os.Remove(tmp)
+	return os.Remove(name)
 }
 
 func replaceBinary(goos, exe string, data []byte) error {
-	tmp := exe + ".new"
-	if err := os.WriteFile(tmp, data, 0o755); err != nil {
+	f, err := os.CreateTemp(filepath.Dir(exe), ".all-usage-*.new")
+	if err != nil {
 		return replaceErr(exe, err)
 	}
-	if err := os.Chmod(tmp, 0o755); err != nil {
+	tmp := f.Name()
+	if _, err := f.Write(data); err != nil {
+		f.Close()
+		os.Remove(tmp)
+		return replaceErr(exe, err)
+	}
+	if err := f.Chmod(0o755); err != nil {
+		f.Close()
+		os.Remove(tmp)
+		return replaceErr(exe, err)
+	}
+	if err := f.Close(); err != nil {
 		os.Remove(tmp)
 		return replaceErr(exe, err)
 	}
