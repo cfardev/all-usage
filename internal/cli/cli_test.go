@@ -13,6 +13,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cfardev/all-usage/internal/config"
 	"github.com/cfardev/all-usage/internal/testutil"
 )
 
@@ -181,12 +182,12 @@ func TestDoctor(t *testing.T) {
 }
 
 func TestInitAndConfigCommands(t *testing.T) {
-	home := isolate(t)
+	isolate(t)
 	out, _, err := run(t, "init")
 	if err != nil {
 		t.Fatal(err)
 	}
-	path := filepath.Join(home, ".config", "all-usage", "config.toml")
+	path := config.DefaultPath()
 	if _, err := os.Stat(path); err != nil || !strings.Contains(out, "Created") {
 		t.Fatalf("init did not create %s: %v %q", path, err, out)
 	}
