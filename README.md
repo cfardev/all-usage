@@ -144,16 +144,16 @@ Prints usage once. This is what `all-usage` does when stdout is not a terminal.
 
 ```
 ● Codex  Plus  chatgpt.com API · 0.4s
-  5-hour limit     ██████▊░░░░░░░░░░░░░    34%  resets in 2h 14m
-  Weekly limit     ████████████▎░░░░░░░    61%  resets in 3d 5h
+  5-hour limit     ━━━━━━╸─────────────    34%  resets in 2h 14m
+  Weekly limit     ━━━━━━━━━━━━╸───────    61%  resets in 3d 5h
 
 ● Kiro  Kiro Pro  kiro-cli login · 0.3s
-  Credits          ████████▍░░░░░░░░░░░  41.6%  416.11 / 1,000 credits · resets in 27d
+  Credits          ━━━━━━━━╸───────────  41.6%  416.11 / 1,000 credits · resets in 27d
 
 ● Cursor  Pro  Cursor IDE login · 0.3s
-  Total usage      ██████████████▌░░░░░  72.4%  resets in 12d · $14.48 spent
-  Auto + Composer  ███████████▋░░░░░░░░  58.3%  resets in 12d
-  API models       ██████████████████▎░  91.2%  resets in 12d
+  Total usage      ━━━━━━━━━━━━━━╸─────  72.4%  resets in 12d · $14.48 spent
+  Auto + Composer  ━━━━━━━━━━━╸────────  58.3%  resets in 12d
+  API models       ━━━━━━━━━━━━━━━━━━╸─  91.2%  resets in 12d
 ```
 
 | Option | Output |
