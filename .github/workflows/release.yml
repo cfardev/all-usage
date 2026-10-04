@@ -1,0 +1,41 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v[0-9]*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check tag
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          # Same rule as tagRE in internal/cli/update.go and install.sh.
+          case "$tag" in
+            *[!A-Za-z0-9._+-]*|v[!0-9]*|v)
+              echo "refusing tag ${tag}; want v1.2.3 or v1.2.3-rc.1" >&2
+              exit 1
+              ;;
+            v[0-9]*) ;;
+            *)
+              echo "refusing tag ${tag}" >&2
+              exit 1
+              ;;
+          esac
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
+        with:
+          go-version: "1.24"
+      - name: Build release archives
+        run: scripts/dist.sh "${GITHUB_REF_NAME}"
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" dist/* --title "${GITHUB_REF_NAME}" --generate-notes

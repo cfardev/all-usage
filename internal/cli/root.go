@@ -1,5 +1,5 @@
 // Package cli wires the cobra commands: the dashboard (default), show,
-// doctor, init, config and themes.
+// doctor, init, config, themes and update.
 package cli
 
 import (
@@ -105,7 +105,8 @@ func newRoot() *cobra.Command {
   all-usage -p codex,kiro -r 30s # only Codex and Kiro, refresh every 30s
   all-usage show                 # print once
   all-usage show -f short        # one line for status bars
-  all-usage doctor               # diagnose credential discovery`,
+  all-usage doctor               # diagnose credential discovery
+  all-usage update               # install the latest release`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			cfg, err := o.load(cmd)
 			if err != nil {
@@ -135,7 +136,7 @@ func newRoot() *cobra.Command {
 	f.BoolVar(&o.once, "once", false, "print usage once and exit (same as the show command)")
 	f.BoolVar(&o.json, "json", false, "print usage as JSON and exit")
 
-	cmd.AddCommand(newShowCmd(o), newDoctorCmd(o), newInitCmd(o), newConfigCmd(o), newThemesCmd(o))
+	cmd.AddCommand(newShowCmd(o), newDoctorCmd(o), newInitCmd(o), newConfigCmd(o), newThemesCmd(o), newUpdateCmd())
 	return cmd
 }
 
