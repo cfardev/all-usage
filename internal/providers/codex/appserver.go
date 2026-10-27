@@ -216,17 +216,20 @@ func (p *Provider) fetchAppServer(ctx context.Context, bin string) (*snapshot, e
 	if err := cmd.Start(); err != nil {
 		return nil, core.Wrap(core.KindNotConfigured, err, "Install Codex or set `codex.binary` in the config.", "cannot start %s app-server", bin)
 	}
-	defer func() {
+	done := make(chan struct{})
+	var waitOnce sync.Once
+	// wait reaps the server; call it only once stdout reads are over (os/exec rule).
+	wait := func() {
 		_ = stdin.Close() // EOF asks the server to exit
-		done := make(chan struct{})
-		go func() { _ = cmd.Wait(); close(done) }()
+		waitOnce.Do(func() { go func() { _ = cmd.Wait(); close(done) }() })
 		select {
 		case <-done:
 		case <-time.After(3 * time.Second):
 			_ = cmd.Process.Kill()
 			<-done
 		}
-	}()
+	}
+	defer wait()
 
 	sc := bufio.NewScanner(stdout)
 	sc.Buffer(make([]byte, 0, 64<<10), 16<<20)
@@ -237,6 +240,7 @@ func (p *Provider) fetchAppServer(ctx context.Context, bin string) (*snapshot, e
 		}
 		var re *rpcError
 		if !errors.As(err, &re) {
+			wait() // stderr is only fully copied once the process is reaped
 			if last := stderr.lastLine(); last != "" {
 				return core.Wrap(core.KindInternal, err, "Run `codex app-server` manually to see the full error.",
 					"codex app-server failed during %s: %s", step, truncate(last, 160))
