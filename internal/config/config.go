@@ -26,10 +26,11 @@ const (
 	Codex  = "codex"
 	Kiro   = "kiro"
 	Cursor = "cursor"
+	Claude = "claude"
 )
 
 // AllProviders lists every supported provider in default display order.
-var AllProviders = []string{Codex, Kiro, Cursor}
+var AllProviders = []string{Codex, Kiro, Cursor, Claude}
 
 // Allowed values of enumerated settings.
 var (
@@ -57,6 +58,7 @@ type Config struct {
 	Codex  CodexConfig  `toml:"codex"`
 	Kiro   KiroConfig   `toml:"kiro"`
 	Cursor CursorConfig `toml:"cursor"`
+	Claude ClaudeConfig `toml:"claude"`
 
 	// Path is the file the configuration was loaded from ("" when none).
 	Path string `toml:"-"`
@@ -139,6 +141,16 @@ type CursorConfig struct {
 	WebBase     string   `toml:"web_base"`
 }
 
+// ClaudeConfig configures the Claude (Pro/Max subscription) provider.
+type ClaudeConfig struct {
+	Enabled         bool     `toml:"enabled"`
+	DisplayName     string   `toml:"display_name"`
+	Color           string   `toml:"color"`
+	Meters          []string `toml:"meters"`
+	CredentialsFile string   `toml:"credentials_file"`
+	APIBase         string   `toml:"api_base"`
+}
+
 // Common holds the settings every provider shares.
 type Common struct {
 	ID          string
@@ -197,6 +209,13 @@ func Default() *Config {
 			Source:      "auto",
 			APIBase:     "https://api2.cursor.sh",
 			WebBase:     "https://cursor.com",
+		},
+		Claude: ClaudeConfig{
+			Enabled:     true,
+			DisplayName: "Claude",
+			Color:       "#D97757",
+			Meters:      []string{},
+			APIBase:     "https://api.anthropic.com",
 		},
 	}
 }
@@ -302,6 +321,7 @@ func (c *Config) SelectProviders(ids []string) error {
 	c.Codex.Enabled = slices.Contains(order, Codex)
 	c.Kiro.Enabled = slices.Contains(order, Kiro)
 	c.Cursor.Enabled = slices.Contains(order, Cursor)
+	c.Claude.Enabled = slices.Contains(order, Claude)
 	return nil
 }
 
@@ -332,6 +352,8 @@ func (c *Config) Common(id string) Common {
 		return Common{ID: id, Enabled: c.Kiro.Enabled, DisplayName: c.Kiro.DisplayName, Color: c.Kiro.Color, Meters: c.Kiro.Meters}
 	case Cursor:
 		return Common{ID: id, Enabled: c.Cursor.Enabled, DisplayName: c.Cursor.DisplayName, Color: c.Cursor.Color, Meters: c.Cursor.Meters}
+	case Claude:
+		return Common{ID: id, Enabled: c.Claude.Enabled, DisplayName: c.Claude.DisplayName, Color: c.Claude.Color, Meters: c.Claude.Meters}
 	}
 	return Common{ID: id}
 }
@@ -407,9 +429,11 @@ func (c *Config) Validate() error {
 	color("codex.color", c.Codex.Color)
 	color("kiro.color", c.Kiro.Color)
 	color("cursor.color", c.Cursor.Color)
+	color("claude.color", c.Claude.Color)
 	for _, u := range []struct{ name, v string }{
 		{"codex.base_url", c.Codex.BaseURL}, {"kiro.endpoint", c.Kiro.Endpoint},
 		{"cursor.api_base", c.Cursor.APIBase}, {"cursor.web_base", c.Cursor.WebBase},
+		{"claude.api_base", c.Claude.APIBase},
 	} {
 		if u.v != "" && !strings.HasPrefix(u.v, "https://") && !strings.HasPrefix(u.v, "http://") {
 			bad("%s: must be an http(s) URL", u.name)
@@ -424,7 +448,10 @@ func (c *Config) Validate() error {
 	if c.Cursor.WebBase == "" {
 		c.Cursor.WebBase = Default().Cursor.WebBase
 	}
-	for _, p := range []*string{&c.Codex.DisplayName, &c.Kiro.DisplayName, &c.Cursor.DisplayName} {
+	if c.Claude.APIBase == "" {
+		c.Claude.APIBase = Default().Claude.APIBase
+	}
+	for _, p := range []*string{&c.Codex.DisplayName, &c.Kiro.DisplayName, &c.Cursor.DisplayName, &c.Claude.DisplayName} {
 		*p = strings.TrimSpace(*p)
 	}
 	if c.Codex.DisplayName == "" {
@@ -435,6 +462,9 @@ func (c *Config) Validate() error {
 	}
 	if c.Cursor.DisplayName == "" {
 		c.Cursor.DisplayName = "Cursor"
+	}
+	if c.Claude.DisplayName == "" {
+		c.Claude.DisplayName = "Claude"
 	}
 
 	if len(errs) > 0 {

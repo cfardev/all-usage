@@ -67,12 +67,12 @@ func Execute() int {
 	return 0
 }
 
-const longHelp = `all-usage shows how much of your Codex, Kiro and Cursor subscriptions you
-have used: rate-limit windows, credits and spend, with reset times.
+const longHelp = `all-usage shows how much of your Codex, Kiro, Cursor and Claude
+subscriptions you have used: rate-limit windows, credits and spend, with reset times.
 
 It needs no setup: credentials are discovered from the official apps and CLIs
-(Codex CLI, kiro-cli / Kiro IDE, Cursor IDE / cursor-agent), read-only. On WSL
-it also finds the Windows apps' logins.
+(Codex CLI, kiro-cli / Kiro IDE, Cursor IDE / cursor-agent, Claude Code),
+read-only. On WSL it also finds the Windows apps' logins.
 
 Run without arguments for the live dashboard. When stdout is not a terminal it
 prints a one-shot table instead (see "all-usage show" for formats).
@@ -88,14 +88,14 @@ Environment overrides:
   ALL_USAGE_TIMEOUT     per-provider timeout
   ALL_USAGE_WINDOWS_HOME  Windows profile dir to search from WSL
   ALL_USAGE_CODEX_TOKEN (+ ALL_USAGE_CODEX_ACCOUNT_ID), ALL_USAGE_KIRO_TOKEN,
-  ALL_USAGE_CURSOR_TOKEN  use a token instead of discovering one
+  ALL_USAGE_CURSOR_TOKEN, ALL_USAGE_CLAUDE_TOKEN  use a token instead of discovering one
   NO_COLOR              disable colors`
 
 func newRoot() *cobra.Command {
 	o := &options{}
 	cmd := &cobra.Command{
 		Use:           "all-usage",
-		Short:         "Your Codex, Kiro and Cursor subscription usage at a glance",
+		Short:         "Your Codex, Kiro, Cursor and Claude subscription usage at a glance",
 		Long:          longHelp,
 		Version:       buildinfo.String(),
 		Args:          cobra.NoArgs,

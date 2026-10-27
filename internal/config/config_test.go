@@ -49,7 +49,7 @@ func TestLoadMissingDefaultFileUsesDefaults(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if cfg.Path != "" || cfg.RefreshInterval.D() != time.Minute || len(cfg.EnabledProviders()) != 3 {
+	if cfg.Path != "" || cfg.RefreshInterval.D() != time.Minute || len(cfg.EnabledProviders()) != 4 {
 		t.Fatalf("unexpected config: path=%q refresh=%v providers=%v", cfg.Path, cfg.RefreshInterval.D(), cfg.EnabledProviders())
 	}
 }
@@ -95,8 +95,8 @@ enabled = false
 	if cfg.UI.Theme != "nord" || cfg.UI.Percent != "remaining" {
 		t.Errorf("file values not applied: theme=%q percent=%q", cfg.UI.Theme, cfg.UI.Percent)
 	}
-	if got := strings.Join(cfg.EnabledProviders(), ","); got != "cursor,codex" {
-		t.Errorf("enabled providers = %q, want cursor,codex", got)
+	if got := strings.Join(cfg.EnabledProviders(), ","); got != "cursor,codex,claude" {
+		t.Errorf("enabled providers = %q, want cursor,codex,claude", got)
 	}
 	if len(cfg.Warnings) != 1 || !strings.Contains(cfg.Warnings[0], "bogus") {
 		t.Errorf("expected a warning for the unknown key, got %v", cfg.Warnings)

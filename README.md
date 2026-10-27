@@ -1,6 +1,6 @@
 # all-usage
 
-Codex, Kiro, and Cursor subscription usage at a glance, in the terminal.
+Codex, Kiro, Cursor, and Claude subscription usage at a glance, in the terminal.
 
 ```
  ◆ all-usage                                         ↻ 56s · updated 21:06
@@ -54,8 +54,8 @@ Codex, Kiro, and Cursor subscription usage at a glance, in the terminal.
 
 <sub>Sample data, `mono` theme. In a terminal, meters turn green, yellow, or red based on usage.</sub>
 
-- No setup required. It finds logins from the official apps on its own (Codex CLI, kiro-cli, Kiro IDE, Cursor IDE, and cursor-agent). On WSL it also finds the Windows apps.
-- One screen for Codex's 5-hour and weekly windows, Kiro credits, and Cursor's included usage, with time left until each limit resets.
+- No setup required. It finds logins from the official apps on its own (Codex CLI, kiro-cli, Kiro IDE, Cursor IDE, cursor-agent, and Claude Code). On WSL it also finds the Windows apps.
+- One screen for Codex's 5-hour and weekly windows, Kiro credits, Cursor's included usage, and Claude's 5-hour and weekly limits, with time left until each limit resets.
 - A dashboard with auto-refresh, 10 themes, compact mode, used or remaining percent, and a layout that fits the terminal width.
 - Script-friendly output: a table, a one-line status bar, JSON, and Go templates.
 - Configurable with a commented TOML file, environment variables, and flags.
@@ -248,7 +248,7 @@ meters = ["total"]   # total only; enabled = false hides the provider
 |---|---|---|
 | `refresh_interval` | `"1m"` | How often the dashboard refreshes (`"30s"`, `"5m"`). `0` disables it; minimum 5s. |
 | `timeout` | `"20s"` | Maximum time per provider on each refresh. |
-| `order` | `["codex", "kiro", "cursor"]` | Card order. |
+| `order` | `["codex", "kiro", "cursor", "claude"]` | Card order. |
 | `scan_windows` | `true` | On WSL, also look for Windows app logins. |
 | `windows_home` | `""` | Windows profile to use instead of detecting one (for example `/mnt/c/Users/ana`). |
 | `ui.theme` | `"auto"` | `auto`, `dark`, `light`, `dracula`, `nord`, `catppuccin`, `gruvbox`, `tokyonight`, `material-ocean`, `mono`. |
@@ -269,15 +269,15 @@ meters = ["total"]   # total only; enabled = false hides the provider
 
 ### Per-provider options
 
-`[codex]`, `[kiro]`, and `[cursor]` share these keys:
+`[codex]`, `[kiro]`, `[cursor]`, and `[claude]` share these keys:
 
 | Key | Default | Description |
 |---|---|---|
 | `enabled` | `true` | Show the provider. |
-| `display_name` | `"Codex"`, `"Kiro"`, `"Cursor"` | Name on the card. |
-| `color` | `"#10A37F"`, `"#9D6CFF"`, `"#4C9AFF"` | Color of the card's dot. |
+| `display_name` | `"Codex"`, `"Kiro"`, `"Cursor"`, `"Claude"` | Name on the card. |
+| `color` | `"#10A37F"`, `"#9D6CFF"`, `"#4C9AFF"`, `"#D97757"` | Color of the card's dot. |
 | `meters` | `[]` | Meter IDs to show, in that order (empty = all). |
-| `source` | `"auto"` | Where to read data from (see below). |
+| `source` | `"auto"` | Where to read data from (see below; not on `[claude]`). |
 
 And these are specific to each provider:
 
@@ -299,6 +299,8 @@ And these are specific to each provider:
 | `cursor.state_db` | `""` | IDE database (`state.vscdb`). |
 | `cursor.auth_file` | `""` | cursor-agent login file. |
 | `cursor.api_base`, `cursor.web_base` | `"https://api2.cursor.sh"`, `"https://cursor.com"` | API URLs. |
+| `claude.credentials_file` | `""` | Claude Code login file (default `$CLAUDE_CONFIG_DIR` or `~/.claude/.credentials.json`, then the macOS Keychain). |
+| `claude.api_base` | `"https://api.anthropic.com"` | API URL. |
 
 Meter IDs for `meters` (`all-usage show --json` prints each meter's `id`):
 
@@ -307,6 +309,7 @@ Meter IDs for `meters` (`all-usage show --json` prints each meter's `id`):
 | `codex` | `primary` (5-hour), `secondary` (weekly), `credits`, and for extra limits such as a model, `<limit_id>.primary` / `<limit_id>.secondary` |
 | `kiro` | `credit`, `credit.bonus`, `credit.free_trial`, `credit.overage` |
 | `cursor` | `total`, `auto`, `api`, `on_demand`, `team_on_demand`, `requests` |
+| `claude` | `five_hour`, `seven_day`, `seven_day_opus`, `seven_day_sonnet`, `extra_usage` |
 
 ### Environment variables
 
@@ -321,6 +324,7 @@ Meter IDs for `meters` (`all-usage show --json` prints each meter's `id`):
 | `ALL_USAGE_CODEX_TOKEN` (+ `ALL_USAGE_CODEX_ACCOUNT_ID`) | Use this Codex token instead of discovering one. |
 | `ALL_USAGE_KIRO_TOKEN` (+ `ALL_USAGE_KIRO_PROFILE_ARN`) | Use this Kiro token instead of discovering one. |
 | `ALL_USAGE_CURSOR_TOKEN` | Use this Cursor token instead of discovering one. |
+| `ALL_USAGE_CLAUDE_TOKEN` | Use this Claude OAuth token instead of discovering one. |
 | `NO_COLOR` | Disable colors. |
 
 ## Where the data comes from
@@ -342,9 +346,15 @@ Cursor
 - Source: `https://cursor.com/api/usage-summary`. If that fails, the IDE API (`api2.cursor.sh`, `DashboardService`).
 - Shows the percent of included usage in the billing cycle (total, Auto + Composer, and API models), spend, on-demand, and, on older plans, premium requests.
 
+Claude
+- Credentials: the Claude Code login (`~/.claude/.credentials.json`, or `$CLAUDE_CONFIG_DIR`; on macOS, the `Claude Code-credentials` Keychain item; from WSL, also `/mnt/c/Users/<user>/.claude`). Requires a Pro or Max subscription login, not an API key.
+- Source: `GET https://api.anthropic.com/api/oauth/usage`, the endpoint behind Claude Code's `/usage`.
+- Claude Code refreshes its own token while you use it. If it has expired, run `claude` once.
+- Shows the 5-hour window, the weekly window, per-model weekly limits when your plan has them, and extra usage.
+
 Privacy and security
 - Read-only: it never writes, refreshes, or copies credentials. Refreshing a token itself can invalidate the refresh token and sign you out of the official app, so refresh is left to the official clients.
-- Each token is sent only to the service that issued it (OpenAI, AWS, or Cursor). There is no telemetry and no other server.
+- Each token is sent only to the service that issued it (OpenAI, AWS, Cursor, or Anthropic). There is no telemetry and no other server.
 - `doctor` never prints tokens. Emails stay hidden unless `--show-account` or `ui.show_account = true`.
 
 ## Status bars
@@ -368,7 +378,7 @@ Waybar:
 ## Troubleshooting
 
 - Start with `all-usage doctor`: it lists each login it found, whether it is expired, and tests each provider.
-- `Session expired`: sign in again with `codex login` or `kiro-cli login`, or open Cursor or run `cursor-agent login`, depending on the provider.
+- `Session expired`: sign in again with `codex login` or `kiro-cli login`, open Cursor or run `cursor-agent login`, or run `claude`, depending on the provider.
 - Codex shows `as of …` or a `*`: your Codex login expired and you are seeing the latest session-log snapshot. `codex login` fixes it.
 - WSL: profiles under `/mnt/c/Users` are detected automatically. Pin one with `windows_home` (or `ALL_USAGE_WINDOWS_HOME`); turn the search off with `scan_windows = false`.
 - Colors: they are omitted when stdout is not a terminal. `ui.color = "always"` forces them; `--no-color` or `NO_COLOR` removes them.
@@ -387,7 +397,7 @@ internal/
   cli/        commands (cobra)
   config/     schema, defaults, and the commented template
   core/       shared model: meters, usage, errors, and concurrent fetch
-  providers/  codex/, kiro/, and cursor/
+  providers/  codex/, kiro/, cursor/, and claude/
   tui/        dashboard (Bubble Tea + Lip Gloss)
   render/     table, short, json, and template output
   ui/         themes, bars, and formatting
@@ -402,4 +412,4 @@ To add a provider:
 
 ## Disclaimer
 
-all-usage is not an official product and is not affiliated with OpenAI, AWS, Kiro, or Cursor. It uses undocumented internal APIs that can change without notice.
+all-usage is not an official product and is not affiliated with OpenAI, AWS, Kiro, Cursor, or Anthropic. It uses undocumented internal APIs that can change without notice.

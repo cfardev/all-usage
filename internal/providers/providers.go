@@ -6,6 +6,7 @@ import (
 
 	"github.com/cfardev/all-usage/internal/config"
 	"github.com/cfardev/all-usage/internal/core"
+	"github.com/cfardev/all-usage/internal/providers/claude"
 	"github.com/cfardev/all-usage/internal/providers/codex"
 	"github.com/cfardev/all-usage/internal/providers/cursor"
 	"github.com/cfardev/all-usage/internal/providers/kiro"
@@ -23,6 +24,8 @@ func Build(cfg *config.Config, env *core.Env) []core.Provider {
 			p = kiro.New(cfg.Kiro, env)
 		case config.Cursor:
 			p = cursor.New(cfg.Cursor, env)
+		case config.Claude:
+			p = claude.New(cfg.Claude, env)
 		default:
 			continue
 		}

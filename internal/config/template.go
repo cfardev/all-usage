@@ -21,7 +21,7 @@ refresh_interval = "1m"
 # Maximum time to wait for one provider on each refresh.
 timeout = "20s"
 # Display order. Providers not listed are shown after these, if enabled.
-order = ["codex", "kiro", "cursor"]
+order = ["codex", "kiro", "cursor", "claude"]
 # Under WSL, also look for credentials of Windows apps (e.g. /mnt/c/Users/<you>).
 scan_windows = true
 # Windows profile dir to use instead of auto-detecting it (WSL only).
@@ -125,6 +125,17 @@ state_db = ""
 auth_file = ""
 api_base = "https://api2.cursor.sh"
 web_base = "https://cursor.com"
+
+[claude]
+enabled = true
+display_name = "Claude"
+color = "#D97757"
+# Meters to show (empty = all). IDs: five_hour, seven_day, seven_day_opus, seven_day_sonnet, extra_usage
+meters = []
+# Claude Code login (default: $CLAUDE_CONFIG_DIR or ~/.claude/.credentials.json, then the
+# macOS Keychain; Windows homes are added under WSL).
+credentials_file = ""
+api_base = "https://api.anthropic.com"
 `
 
 // WriteTemplate writes Template to path, creating parent directories. It

@@ -27,7 +27,7 @@ func isolate(t *testing.T) string {
 		"APPDATA": filepath.Join(home, "AppData", "Roaming"), "LOCALAPPDATA": filepath.Join(home, "AppData", "Local"),
 		"ALL_USAGE_CONFIG": "", "ALL_USAGE_PROVIDERS": "", "ALL_USAGE_REFRESH": "", "ALL_USAGE_THEME": "",
 		"ALL_USAGE_TIMEOUT": "", "ALL_USAGE_WINDOWS_HOME": "", "ALL_USAGE_CODEX_TOKEN": "", "ALL_USAGE_CODEX_ACCOUNT_ID": "",
-		"ALL_USAGE_KIRO_TOKEN": "", "ALL_USAGE_KIRO_PROFILE_ARN": "", "ALL_USAGE_CURSOR_TOKEN": "", "NO_COLOR": "1",
+		"ALL_USAGE_KIRO_TOKEN": "", "ALL_USAGE_KIRO_PROFILE_ARN": "", "ALL_USAGE_CURSOR_TOKEN": "", "ALL_USAGE_CLAUDE_TOKEN": "", "CLAUDE_CONFIG_DIR": "", "NO_COLOR": "1",
 	} {
 		t.Setenv(k, v)
 	}
@@ -55,6 +55,12 @@ func fakeServer(t *testing.T) *httptest.Server {
 			w.WriteHeader(401) // force the bearer RPC fallback
 		case "/cursor/aiserver.v1.DashboardService/GetCurrentPeriodUsage":
 			_, _ = w.Write([]byte(`{"billingCycleEnd":"1793544890000","planUsage":{"totalPercentUsed":12.5,"autoPercentUsed":10,"apiPercentUsed":20}}`))
+		case "/claude/api/oauth/usage":
+			if auth != "Bearer claude-token" {
+				w.WriteHeader(401)
+				return
+			}
+			_, _ = w.Write([]byte(`{"five_hour":{"utilization":7,"resets_at":"2026-10-27T07:59:59.655027+00:00"},"seven_day":{"utilization":31,"resets_at":"2026-10-29T17:59:59+00:00"}}`))
 		default:
 			w.WriteHeader(404)
 		}
@@ -79,6 +85,8 @@ endpoint = "`+base+`/kiro"
 [cursor]
 api_base = "`+base+`/cursor"
 web_base = "`+base+`/cursor"
+[claude]
+api_base = "`+base+`/claude"
 `)
 	return p
 }
@@ -102,19 +110,20 @@ func TestShowAllFormats(t *testing.T) {
 	t.Setenv("ALL_USAGE_CODEX_TOKEN", "codex-token")
 	t.Setenv("ALL_USAGE_KIRO_TOKEN", "kiro-token")
 	t.Setenv("ALL_USAGE_CURSOR_TOKEN", testutil.JWT(map[string]any{"sub": "auth0|user_X", "exp": time.Now().Add(time.Hour).Unix()}))
+	t.Setenv("ALL_USAGE_CLAUDE_TOKEN", "claude-token")
 
 	out, _, err := run(t, "show", "-c", cfg)
 	if err != nil {
 		t.Fatalf("show: %v", err)
 	}
-	for _, want := range []string{"Codex  Pro", "5-hour limit", "22%", "Kiro  Kiro Pro", "250 / 1,000 credits", "Cursor", "12.5%"} {
+	for _, want := range []string{"Codex  Pro", "5-hour limit", "22%", "Kiro  Kiro Pro", "250 / 1,000 credits", "Cursor", "12.5%", "Claude", "31%"} {
 		if !strings.Contains(out, want) {
 			t.Errorf("table missing %q:\n%s", want, out)
 		}
 	}
 
-	out, _, err = run(t, "show", "-c", cfg, "-f", "short", "-p", "kiro,codex")
-	if err != nil || out != "Kiro 25% | Codex 5h 22% · wk 56%\n" {
+	out, _, err = run(t, "show", "-c", cfg, "-f", "short", "-p", "kiro,codex,claude")
+	if err != nil || out != "Kiro 25% | Codex 5h 22% · wk 56% | Claude 5h 7% · wk 31%\n" {
 		t.Errorf("short = %q, %v", out, err)
 	}
 
@@ -128,7 +137,7 @@ func TestShowAllFormats(t *testing.T) {
 			OK bool   `json:"ok"`
 		} `json:"providers"`
 	}
-	if err := json.Unmarshal([]byte(out), &doc); err != nil || len(doc.Providers) != 3 {
+	if err := json.Unmarshal([]byte(out), &doc); err != nil || len(doc.Providers) != 4 {
 		t.Fatalf("json: %v\n%s", err, out)
 	}
 	for _, p := range doc.Providers {
